@@ -1,4 +1,4 @@
-package com.ur.framework.util;
+package org.gaea.util;
 
 import java.util.ArrayList;
 import java.util.List;

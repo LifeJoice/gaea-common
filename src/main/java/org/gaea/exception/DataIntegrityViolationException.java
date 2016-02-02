@@ -1,4 +1,4 @@
-package com.ur.framework.exception;
+package org.gaea.exception;
 
 /**
  * 这是一个针对违反数据完整性约束错误的异常类。

@@ -1,4 +1,4 @@
-package com.ur.framework.paging;
+package org.gaea.paging;
 
 /**
  * 储存分页信息的bean。

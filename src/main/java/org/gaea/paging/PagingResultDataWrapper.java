@@ -1,4 +1,4 @@
-package com.ur.framework.paging;
+package org.gaea.paging;
 
 import java.util.List;
 

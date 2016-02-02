@@ -1,7 +1,7 @@
-package com.ur.framework.system.factory;
+package org.gaea.system.factory;
 
-import com.ur.framework.paging.PagingResultDataWrapper;
-import com.ur.framework.paging.PagingResultDataWrapper;
+import org.gaea.paging.PagingResultDataWrapper;
+
 import java.util.List;
 
 /**

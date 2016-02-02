@@ -1,4 +1,4 @@
-package com.ur.framework.util;
+package org.gaea.util;
 
 /**
  * 通用的日期处理类。只处理日期。时间放在另一个类。

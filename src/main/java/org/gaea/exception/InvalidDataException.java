@@ -1,4 +1,4 @@
-package com.ur.framework.exception;
+package org.gaea.exception;
 
 /**
  * 普通的数据错误异常类。例如：传入的金额有非数字之类的。
