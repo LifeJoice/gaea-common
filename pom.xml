@@ -12,6 +12,7 @@
         <jdkLevel>1.6</jdkLevel>
         <common.lang.version>3.3.2</common.lang.version>
         <spring.version>4.2.1.RELEASE</spring.version>
+        <jackson.version>2.6.1</jackson.version>
     </properties>
     <dependencies>
         <!-- Apache Common -->
@@ -20,11 +21,27 @@
             <artifactId>commons-lang3</artifactId>
             <version>${common.lang.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.2</version>
+        </dependency>
         <!--Spring framework-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+        <!--Jackson-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 
