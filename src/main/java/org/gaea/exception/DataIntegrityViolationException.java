@@ -9,7 +9,7 @@ package org.gaea.exception;
  * @author Iverson
  * 2014-5-6 星期二
  */
-public class DataIntegrityViolationException extends Exception{
+public class DataIntegrityViolationException extends Exception implements GaeaException{
 
     public DataIntegrityViolationException() {
     }

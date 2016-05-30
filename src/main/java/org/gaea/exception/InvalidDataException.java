@@ -5,7 +5,7 @@ package org.gaea.exception;
  * @author Iverson
  * 2014-5-6 星期二
  */
-public class InvalidDataException extends Exception{
+public class InvalidDataException extends Exception implements GaeaException{
 
     public InvalidDataException() {
     }

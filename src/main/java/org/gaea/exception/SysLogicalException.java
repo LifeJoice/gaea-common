@@ -6,7 +6,7 @@ package org.gaea.exception;
  * 计算费用的时候出现负数金额，非空字段出现空的数值,按id删除却发现返回结果不止删了一条，等等。
  * Created by Iverson on 2015/8/14.
  */
-public class SysLogicalException extends Exception {
+public class SysLogicalException extends Exception implements GaeaException {
 
     public SysLogicalException(String message) {
         super(message);
