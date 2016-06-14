@@ -1,12 +1,12 @@
 package org.gaea.util;
 
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * 通用的日期时间处理类。
@@ -99,6 +99,25 @@ public class GaeaDateTimeUtils {
     }
 
     /**
+     * 比较两个日期，哪个更大。日期格式：yyyy-MM-dd HH:mm:ss
+     * date1 > date2, return true
+     *
+     * @param strDate1
+     * @param strDate2
+     * @return date1>date2
+     * @throws ParseException
+     */
+    public boolean isLarger(String strDate1, String strDate2) throws ParseException {
+        if (StringUtils.isEmpty(strDate1) || StringUtils.isEmpty(strDate2)) {
+            throw new IllegalArgumentException("输入参数不允许为空！");
+        }
+        FastDateFormat yMdHms = FastDateFormat.getInstance(FULL_DATE_TIME);
+        Date date1 = yMdHms.parse(strDate1);
+        Date date2 = yMdHms.parse(strDate2);
+        return date1.getTime() > date2.getTime();
+    }
+
+    /**
      * 接受Gaea系统特有的时间描述符，转换成毫秒。
      *
      * @param gaeaStrTime 例如：6秒 = 6s，6分钟 = 6m等
@@ -120,9 +139,9 @@ public class GaeaDateTimeUtils {
         } else if (StringUtils.endsWith(gaeaStrTime, GAEA_TIME_SUFFIX_DAY)) {
             long num = getGaeaTime(gaeaStrTime, GAEA_TIME_SUFFIX_DAY);
             result = num * 24 * 60 * 60 * 1000;
-        }else{
+        } else {
             // 如果传入的是纯数值，转换后返回！
-            if(StringUtils.isNumeric(gaeaStrTime)){
+            if (StringUtils.isNumeric(gaeaStrTime)) {
                 return Long.parseLong(gaeaStrTime);
             }
         }
