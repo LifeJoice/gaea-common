@@ -5,7 +5,7 @@ package org.gaea.exception;
  * @author Iverson
  * 2014-5-6 星期二
  */
-public class InvalidDataException extends Exception implements GaeaException{
+public class InvalidDataException extends GaeaExceptionImpl{
 
     public InvalidDataException() {
     }
@@ -17,5 +17,12 @@ public class InvalidDataException extends Exception implements GaeaException{
     public InvalidDataException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
+    public InvalidDataException(String message, String debugMessage) {
+        super(message, debugMessage);
+    }
+
+    public InvalidDataException(String message, Throwable cause, String debugMessage) {
+        super(message, cause, debugMessage);
+    }
 }
