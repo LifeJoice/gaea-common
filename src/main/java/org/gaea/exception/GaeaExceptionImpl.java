@@ -10,6 +10,7 @@ package org.gaea.exception;
  */
 public class GaeaExceptionImpl extends Exception implements GaeaException {
 
+    private int status = DEFAULT_FAIL;
     protected String debugMessage;
 
     public GaeaExceptionImpl() {
@@ -44,5 +45,13 @@ public class GaeaExceptionImpl extends Exception implements GaeaException {
 
     public void setDebugMessage(String debugMessage) {
         this.debugMessage = debugMessage;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

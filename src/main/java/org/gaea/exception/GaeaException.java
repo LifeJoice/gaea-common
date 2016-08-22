@@ -5,4 +5,5 @@ package org.gaea.exception;
  * Created by iverson on 2016-6-8 11:07:25.
  */
 public interface GaeaException {
+    public static final int DEFAULT_FAIL = 600; // 默认失败的状态码。可以用于HTTP STATUS。
 }
