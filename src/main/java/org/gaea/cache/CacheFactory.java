@@ -1,4 +1,4 @@
-package org.gaea.data.cache;
+package org.gaea.cache;
 
 import org.gaea.exception.SysInitException;
 

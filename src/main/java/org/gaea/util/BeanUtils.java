@@ -1,6 +1,8 @@
 package org.gaea.util;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyDescriptor;
 import java.util.HashMap;
@@ -12,9 +14,14 @@ import java.util.Map;
  * Created by iverson on 2016/2/2.
  */
 public class BeanUtils {
+    private final Logger logger = LoggerFactory.getLogger(BeanUtils.class);
 
-    public static void copyProperties(Object source,Object target){
+    public static void copyProperties(Object source, Object target) {
         org.springframework.beans.BeanUtils.copyProperties(source, target);
+    }
+
+    public static void copyProperties(Object source, Object target, String... ignoreProperties) {
+        org.springframework.beans.BeanUtils.copyProperties(source, target, ignoreProperties);
     }
 
     public static Map<String, String> getPropNames(Class<?> beanClass) {
