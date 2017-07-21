@@ -6,4 +6,6 @@ package org.gaea.exception;
  */
 public interface GaeaException {
     public static final int DEFAULT_FAIL = 600; // 默认失败的状态码。可以用于HTTP STATUS。
+
+    String getDebugMessage();
 }
