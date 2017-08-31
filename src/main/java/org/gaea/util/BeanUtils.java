@@ -3,6 +3,8 @@ package org.gaea.util;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gaea.exception.ValidationFailedException;
+import org.gaea.util.bean.DatePropEditor;
+import org.gaea.util.bean.TimestampPropEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -10,7 +12,12 @@ import org.springframework.beans.NotReadablePropertyException;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
+import java.io.InputStream;
+import java.util.Date;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,6 +47,7 @@ public class BeanUtils {
 
     /**
      * 获取属性的值。没有对应的属性值会抛出异常。
+     *
      * @param target
      * @param propName
      * @return
@@ -61,6 +69,7 @@ public class BeanUtils {
 
     /**
      * 设定某个对象的某个属性的值。没有对应的属性值会抛出异常。
+     *
      * @param target
      * @param propName
      * @param propValue
@@ -80,6 +89,7 @@ public class BeanUtils {
 
     /**
      * 某个属性值是否可读。也可用于判断某个属性值是否存在。
+     *
      * @param target
      * @param propName
      * @return
@@ -91,5 +101,54 @@ public class BeanUtils {
         }
         BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(target);
         return wrapper.isReadableProperty(propName);
+    }
+
+    /**
+     * 负责把dataList转换为bean list。
+     * <p>因为在转换过程中，有很多特殊类型，例如Date的从字符到Date、Timestamp等，是需要人工介入的。</p>
+     * <p>（虽然当前不支持）还有像String=1.0转换成int的，没有特殊转换器会出错。</p>
+     * @param dataList
+     * @param beanClass
+     * @param <T>
+     * @return
+     * @throws ValidationFailedException
+     */
+    public static <T> List<T> getData(List<Map<String, String>> dataList, Class<T> beanClass) throws ValidationFailedException {
+        if (dataList == null || beanClass == null) {
+            return null;
+        }
+        List<T> results = new ArrayList<T>();
+        boolean hasDate = false, hasTimestamp = false;
+        // 属性一次读出，不要每次循环构建
+        PropertyDescriptor[] pds = org.springframework.beans.BeanUtils.getPropertyDescriptors(beanClass);
+        DatePropEditor datePropEditor = new DatePropEditor(); // 日期类型的转换器
+        TimestampPropEditor timestampPropEditor = new TimestampPropEditor(); // Timestamp类型的转换器
+
+        // 一次性判断bean是否含有某些需要转换的类型，例如：Date、Timestamp等
+        for (PropertyDescriptor pd : pds) {
+            if (Date.class.isAssignableFrom(pd.getPropertyType())) {
+                hasDate = true;
+            } else if (pd.getPropertyType().isAssignableFrom(Timestamp.class)) {
+                hasTimestamp = true;
+            } else if (pd.getPropertyType().isAssignableFrom(java.sql.Date.class)) {
+                throw new ValidationFailedException("不支持java.sql.Date类型的转换。建议使用java.util.Date.");
+            }
+        }
+        // 数据转换bean
+        for (int i = 0; dataList != null && i < dataList.size(); i++) {
+            T bean = org.springframework.beans.BeanUtils.instantiate(beanClass);
+            BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);
+            // 注册特定属性类型的转换器, 否则转换不了就报错
+            if (hasDate) {
+                wrapper.registerCustomEditor(Date.class, datePropEditor);
+            } else if (hasTimestamp) {
+                wrapper.registerCustomEditor(Timestamp.class, timestampPropEditor);
+            }
+            wrapper.setAutoGrowNestedPaths(true);
+            Map<String, ? extends Object> dataMap = dataList.get(i);
+            wrapper.setPropertyValues(dataMap);
+            results.add(bean);
+        }
+        return results;
     }
 }

@@ -3,9 +3,11 @@ package org.gaea.util;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.gaea.data.jackson.GaeaJacksonPropertyFilterMixIn;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,12 @@ public class GaeaJacksonUtils {
     static {
         filterObjectMapper.addMixIn(
                 Object.class, GaeaJacksonPropertyFilterMixIn.class);
+        // 普通ObjectMapper初始化
+        // 针对Long和BigDecimal的，转换为String。因为太长的大数，前端JavaScript会精度丢失
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(Long.class, ToStringSerializer.instance); // ToStringSerializer线程安全
+        simpleModule.addSerializer(BigDecimal.class, ToStringSerializer.instance);
+        objectMapper.registerModule(simpleModule);
     }
 
     public static String parse(Object inObj) throws IOException {
