@@ -3,6 +3,8 @@ package org.gaea.util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.gaea.common.CommonDefinition;
+import org.gaea.config.SystemProperties;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -146,6 +148,19 @@ public class GaeaDateTimeUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * 获取系统定义的（支持的）默认转换日期格式
+     * @return
+     */
+    public static String[] getDefaultConvertPatterns(){
+        String[] convertPatterns = CommonDefinition.DATETIME_CONVERT_PATTERNS; // 默认的转换格式
+        // 如果配置文件有设定转换格式, 就用配置文件的
+        if(StringUtils.isNotEmpty(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS))){
+            convertPatterns = StringUtils.split(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS),",");
+        }
+        return convertPatterns;
     }
 
     private static long getGaeaTime(String gaeaStrTime, String suffix) {
