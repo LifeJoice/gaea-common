@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.gaea.common.CommonDefinition;
 import org.gaea.config.SystemProperties;
+import org.gaea.util.GaeaDateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +20,7 @@ public class DatePropEditor extends PropertyEditorSupport {
 
     @Override
     public void setAsText(String text) throws IllegalArgumentException {
-        String[] convertPatterns = CommonDefinition.DATETIME_CONVERT_PATTERNS; // 默认的转换格式
-        // 如果配置文件有设定转换格式, 就用配置文件的
-        if(StringUtils.isNotEmpty(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS))){
-            convertPatterns = StringUtils.split(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS),",");
-        }
+        String[] convertPatterns = GaeaDateTimeUtils.getDefaultConvertPatterns(); // 默认的转换格式
         try {
             if(StringUtils.isNotEmpty(text)) {
 

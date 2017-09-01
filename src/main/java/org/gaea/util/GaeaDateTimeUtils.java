@@ -9,6 +9,8 @@ import org.gaea.config.SystemProperties;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 通用的日期时间处理类。
@@ -152,13 +154,24 @@ public class GaeaDateTimeUtils {
 
     /**
      * 获取系统定义的（支持的）默认转换日期格式
+     *
      * @return
      */
-    public static String[] getDefaultConvertPatterns(){
+    public static String[] getDefaultConvertPatterns() {
         String[] convertPatterns = CommonDefinition.DATETIME_CONVERT_PATTERNS; // 默认的转换格式
         // 如果配置文件有设定转换格式, 就用配置文件的
-        if(StringUtils.isNotEmpty(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS))){
-            convertPatterns = StringUtils.split(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS),",");
+        if (StringUtils.isNotEmpty(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS))) {
+            String[] splitPatterns = StringUtils.split(SystemProperties.get(CommonDefinition.PROP_DATETIME_CONVERT_PATTERNS), ",");
+            if (splitPatterns == null || splitPatterns.length < 1) {
+                return convertPatterns;
+            }
+            Set<String> patternSet = new HashSet<String>();
+            for (String pattern : splitPatterns) {
+                if (StringUtils.isNotEmpty(pattern)) {
+                    patternSet.add(pattern.trim());
+                }
+            }
+            convertPatterns = patternSet.toArray(new String[]{});
         }
         return convertPatterns;
     }
