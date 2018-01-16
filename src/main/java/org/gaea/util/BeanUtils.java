@@ -13,12 +13,10 @@ import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
 import java.io.InputStream;
-import java.util.Date;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 封装统一的Bean处理。因为像Bean复制可能会比较影响性能，如果以后发现某种方式的复制不合适，方面整体替换。<p/>
@@ -26,7 +24,7 @@ import java.util.Map;
  * Created by iverson on 2016/2/2.
  */
 public class BeanUtils {
-    private final Logger logger = LoggerFactory.getLogger(BeanUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(BeanUtils.class);
 
     public static void copyProperties(Object source, Object target) {
         org.springframework.beans.BeanUtils.copyProperties(source, target);
@@ -34,6 +32,38 @@ public class BeanUtils {
 
     public static void copyProperties(Object source, Object target, String... ignoreProperties) {
         org.springframework.beans.BeanUtils.copyProperties(source, target, ignoreProperties);
+    }
+
+    /**
+     * 把map的值写入对象中。
+     * @param map
+     * @param target
+     */
+    public static void setValues(Map map, Object target, String... ignoreProperties) {
+        try {
+            // 借用spring的getPropertyDescriptors，因为貌似Spring会做Java class的properties缓存。
+            // spring的Bean copy也是用的Method，所以这个就不需要用spring了。
+            PropertyDescriptor[] propertyDescriptors = org.springframework.beans.BeanUtils.getPropertyDescriptors(target.getClass());
+            List<String> ignoreList = (ignoreProperties != null ? Arrays.asList(ignoreProperties) : null);
+
+            for (PropertyDescriptor targetPd : propertyDescriptors) {
+                String key = targetPd.getName();
+
+                if (map.containsKey(key)) {
+                    Object value = map.get(key);
+                    // 得到property对应的setter方法
+                    Method writeMethod = targetPd.getWriteMethod();
+
+                    if (writeMethod != null && (ignoreList == null || !ignoreList.contains(targetPd.getName()))) {
+                        writeMethod.invoke(target, value);
+                    }
+                }
+            }
+        } catch (InvocationTargetException e) {
+            logger.error("尝试把Map的值写入bean失败！Map: " + map.toString(), e);
+        } catch (IllegalAccessException e) {
+            logger.error("尝试把Map的值写入bean失败！Map: " + map.toString(), e);
+        }
     }
 
     public static Map<String, String> getPropNames(Class<?> beanClass) {
@@ -107,6 +137,7 @@ public class BeanUtils {
      * 负责把dataList转换为bean list。
      * <p>因为在转换过程中，有很多特殊类型，例如Date的从字符到Date、Timestamp等，是需要人工介入的。</p>
      * <p>（虽然当前不支持）还有像String=1.0转换成int的，没有特殊转换器会出错。</p>
+     *
      * @param dataList
      * @param beanClass
      * @param <T>
