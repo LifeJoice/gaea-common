@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.core.io.support.ResourcePatternUtils;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -34,8 +35,8 @@ public class SystemProperties {
     static void init() {
         try {
 
-            ResourceLoader loader = new DefaultResourceLoader();
-            Resource resource = loader.getResource(DEFAULT_BEGIN_PROPERTY_FILE);
+            ResourceLoader resourceLoader = new DefaultResourceLoader();
+            Resource resource = resourceLoader.getResource(DEFAULT_BEGIN_PROPERTY_FILE);
             /**
              * 先加载系统的最top的property配置文件
              */
@@ -52,12 +53,20 @@ public class SystemProperties {
                 if (StringUtils.isNotEmpty(allPropLocations)) {
                     String[] resourceLocations = allPropLocations.split(",");
                     for (String location : resourceLocations) {
-                        Resource r = loader.getResource(location);
-                        if (r.exists()) {
-                            Properties p = null;
-                            p = PropertiesLoaderUtils.loadProperties(new EncodedResource(r, "UTF-8"));
-                            // 把properties文件里的值，放到全局的map中缓存
-                            initProperties(p, location);
+                        // 读取配置的路径对应的文件。支持classpath:/com/**/*.xml这样的模糊匹配
+                        Resource[] arrayR = ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(location);
+                        /* 读取XML文件，把DataSet读取和转换处理。 */
+                        if (arrayR != null) {
+                            // 遍历（模糊）路径下的每一个文件
+                            for (Resource r : arrayR) {
+//                        Resource r = resourceLoader.getResource(location);
+                                if (r.exists()) {
+                                    Properties p = null;
+                                    p = PropertiesLoaderUtils.loadProperties(new EncodedResource(r, "UTF-8"));
+                                    // 把properties文件里的值，放到全局的map中缓存
+                                    initProperties(p, location);
+                                }
+                            }
                         }
                     }
                 }
