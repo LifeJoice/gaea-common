@@ -149,7 +149,7 @@ public class BeanUtils {
             return null;
         }
         List<T> results = new ArrayList<T>();
-        boolean hasDate = false, hasTimestamp = false;
+        boolean hasDate = false;
         // 属性一次读出，不要每次循环构建
         PropertyDescriptor[] pds = org.springframework.beans.BeanUtils.getPropertyDescriptors(beanClass);
         DatePropEditor datePropEditor = new DatePropEditor(); // 日期类型的转换器
@@ -159,8 +159,8 @@ public class BeanUtils {
         for (PropertyDescriptor pd : pds) {
             if (Date.class.isAssignableFrom(pd.getPropertyType())) {
                 hasDate = true;
-            } else if (pd.getPropertyType().isAssignableFrom(Timestamp.class)) {
-                hasTimestamp = true;
+//            } else if (pd.getPropertyType().isAssignableFrom(Timestamp.class)) { // 这个不行，区分不出Date和TimeStamp类型
+//                hasTimestamp = true;
             } else if (pd.getPropertyType().isAssignableFrom(java.sql.Date.class)) {
                 throw new ValidationFailedException("不支持java.sql.Date类型的转换。建议使用java.util.Date.");
             }
@@ -172,7 +172,7 @@ public class BeanUtils {
             // 注册特定属性类型的转换器, 否则转换不了就报错
             if (hasDate) {
                 wrapper.registerCustomEditor(Date.class, datePropEditor);
-            } else if (hasTimestamp) {
+                // 不需要分开考虑Date和TimeStamp了，感觉不好区分，一起注册得了
                 wrapper.registerCustomEditor(Timestamp.class, timestampPropEditor);
             }
             wrapper.setAutoGrowNestedPaths(true);
