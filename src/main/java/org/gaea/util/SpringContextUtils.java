@@ -1,6 +1,8 @@
 package org.gaea.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gaea.exception.SysInitException;
+import org.gaea.exception.ValidationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -32,6 +34,16 @@ public class SpringContextUtils implements ApplicationContextAware {
             throw new SysInitException("系统初始化ApplicationContext失败。ApplicationContext=null。无法通过静态方法获取bean。");
         }
         return applicationContext.getBean(aClass);
+    }
+
+    public static Object getBean(String beanName) throws SysInitException, ValidationFailedException {
+        if (applicationContext == null) {
+            throw new SysInitException("系统初始化ApplicationContext失败。ApplicationContext=null。无法通过静态方法获取bean。");
+        }
+        if(StringUtils.isEmpty(beanName)){
+            throw new ValidationFailedException("bean name为空，无法获取对应的bean。");
+        }
+        return applicationContext.getBean(beanName);
     }
 
     public static <T> Map<String, T> getBeansOfType(Class<T> aClass) throws SysInitException {

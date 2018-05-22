@@ -1,8 +1,11 @@
 package org.gaea.util;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.gaea.exception.ValidationFailedException;
+import org.gaea.paging.PagingBean;
 import org.gaea.util.bean.DatePropEditor;
 import org.gaea.util.bean.TimestampPropEditor;
 import org.slf4j.Logger;
@@ -13,6 +16,7 @@ import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -31,6 +35,14 @@ public class BeanUtils {
     }
 
     public static void copyProperties(Object source, Object target, String... ignoreProperties) {
+        org.springframework.beans.BeanUtils.copyProperties(source, target, ignoreProperties);
+    }
+
+    public static void shallowCopyProperties(Object source, Object target, String... ignoreProperties) {
+        // 属性一次读出，不要每次循环构建
+        PropertyDescriptor[] pds = org.springframework.beans.BeanUtils.getPropertyDescriptors(target.getClass());
+
+
         org.springframework.beans.BeanUtils.copyProperties(source, target, ignoreProperties);
     }
 
@@ -181,5 +193,100 @@ public class BeanUtils {
             results.add(bean);
         }
         return results;
+    }
+
+    /**
+     * 把Class中属性，非Java基本类型的抽出来。
+     *
+     * @param beanClass
+     * @return
+     */
+    public static List<Field> getNotPrimitiveFields(Class beanClass) {
+        List<Field> result = new ArrayList<Field>();
+        Field[] fields = beanClass.getDeclaredFields();
+        for (Field field : fields) {
+            Class fieldClass = field.getType();
+            // 不是基本类型的, 也不是String
+            if (!ClassUtils.isPrimitiveOrWrapper(fieldClass) && !fieldClass.isAssignableFrom(String.class)) {
+                result.add(field);
+            }
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+        List<Field> primitiveFields = getNotPrimitiveFields(TestBean.class);
+        for(Field field: primitiveFields){
+            System.out.println(field.getName());
+        }
+        Date dateParam = new Date();
+        Timestamp timestampParam = new Timestamp(System.currentTimeMillis());
+        System.out.println(dateParam.getClass().isAssignableFrom(Date.class));
+    }
+
+    static class TestBean{
+        private int id;
+        private Long money;
+        private Boolean isNew;
+        private String name;
+        private PagingBean pagingBean;
+        private List<String> students;
+        private Map keys;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public Long getMoney() {
+            return money;
+        }
+
+        public void setMoney(Long money) {
+            this.money = money;
+        }
+
+        public Boolean getNew() {
+            return isNew;
+        }
+
+        public void setNew(Boolean aNew) {
+            isNew = aNew;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public PagingBean getPagingBean() {
+            return pagingBean;
+        }
+
+        public void setPagingBean(PagingBean pagingBean) {
+            this.pagingBean = pagingBean;
+        }
+
+        public List<String> getStudents() {
+            return students;
+        }
+
+        public void setStudents(List<String> students) {
+            this.students = students;
+        }
+
+        public Map getKeys() {
+            return keys;
+        }
+
+        public void setKeys(Map keys) {
+            this.keys = keys;
+        }
     }
 }
